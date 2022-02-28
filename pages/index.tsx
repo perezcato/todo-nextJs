@@ -18,7 +18,7 @@ const Home: NextPage<Prop> = (props: Prop) => {
 
   const addTodo = async () => {
     if(todoName && todoName.length > 0){
-      const res = await axios.post('http://localhost:3000/todo', {name: todoName}, {headers: {'content-type': 'application/json'}})
+      const res = await axios.post('https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo', {name: todoName}, {headers: {'content-type': 'application/json'}})
 
       if(res.status < 400){
         setTodos(prevState => [...prevState, res.data])
@@ -28,7 +28,7 @@ const Home: NextPage<Prop> = (props: Prop) => {
   }
 
   const deleteTodo = async (id: string) => {
-      const res = await axios.delete(`http://localhost:3000/todo/${id}`, {headers: {'content-type': 'application/json'}})
+      const res = await axios.delete(`https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo/${id}`, {headers: {'content-type': 'application/json'}})
 
       if(res.status < 400){
         setTodos(prevState => {
@@ -78,7 +78,7 @@ const Home: NextPage<Prop> = (props: Prop) => {
 
 export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
-  const req = await fetch('http://localhost:3000/todo')
+  const req = await fetch('https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo')
   const todos = await req.json()
 
 
