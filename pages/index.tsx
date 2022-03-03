@@ -1,6 +1,7 @@
 import React from "react";
 import type {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next'
 import axios from "axios";
+import {useRouter} from "next/router";
 
 interface Todo {
   id: string,
@@ -14,11 +15,40 @@ interface Prop{
 
 const Home: NextPage<Prop> = (props: Prop) => {
   const [todoName, setTodoName] = React.useState<string>('')
-  const [todos, setTodos] = React.useState<Todo[]>(props.todos)
+  const [todos, setTodos] = React.useState<Todo[]>([])
+  const [token, setToken] = React.useState<string>('')
+  const router = useRouter()
+
+  React.useEffect(() => {
+    const getAuth = window.localStorage.getItem('auth')
+    if(!getAuth){
+      router.push('/auth/login')
+    }
+
+    console.log('this is the token',JSON.parse(getAuth as string).data.token)
+
+    setToken(JSON.parse(getAuth as string).data.token)
+  }, [])
+
+  React.useEffect(() => {
+    const getTodos = async () => {
+      const getAuth = window.localStorage.getItem('auth')
+      if(!getAuth){
+        router.push('/auth/login')
+      }
+
+      const req = await fetch('https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo', {headers: {'Authorization': token}})
+      const resTodo = await req.json()
+      setTodos(resTodo)
+    }
+
+    getTodos().catch()
+
+  }, [token])
 
   const addTodo = async () => {
     if(todoName && todoName.length > 0){
-      const res = await axios.post('https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo', {name: todoName}, {headers: {'content-type': 'application/json'}})
+      const res = await axios.post('https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo', {name: todoName}, {headers: {'content-type': 'application/json', 'Authorization': token}})
 
       if(res.status < 400){
         setTodos(prevState => [...prevState, res.data])
@@ -28,7 +58,7 @@ const Home: NextPage<Prop> = (props: Prop) => {
   }
 
   const deleteTodo = async (id: string) => {
-      const res = await axios.delete(`https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo/${id}`, {headers: {'content-type': 'application/json'}})
+      const res = await axios.delete(`https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo/${id}`, {headers: {'content-type': 'application/json', 'Authorization': token}})
 
       if(res.status < 400){
         setTodos(prevState => {
@@ -74,20 +104,6 @@ const Home: NextPage<Prop> = (props: Prop) => {
 
     </div>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
-
-  const req = await fetch('https://todo-backend-nest-js-sdja8.ondigitalocean.app/todo')
-  const todos = await req.json()
-
-
-  return {
-    props: {
-      todos: todos
-    }
-  }
-
 }
 
 export default Home
