@@ -15,7 +15,7 @@ const Login: NextPage = () => {
         e.preventDefault()
 
         try{
-          const res = await axios.post('http://localhost:3000/api/auth', {email, password})
+          const res = await axios.post('https://todo-next-js-naxi6.ondigitalocean.app/api/auth', {email, password})
           if(res && res.status < 400){
             window.localStorage.setItem('auth', JSON.stringify(res.data))
             router.push('/').catch()
